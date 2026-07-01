@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Class, Faster</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --cream:#F6EFDD;
+    --navy:#1B2A4A;
+    --gold:#B7791F;
+    --ink:#2B2B2B;
+    --card:#FFFEF9;
+    --line:#E4D9BE;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--navy);
+    font-family:'Inter',sans-serif;
+    padding-bottom:60px;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:28px 20px;}
+
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:3px;
+    color:var(--gold);
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+  }
+  .college-logo{
+    height:56px;
+    display:block;
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-size:44px;
+    line-height:1.05;
+    margin:10px 0 16px;
+    font-weight:700;
+  }
+  h1 em{color:var(--gold);font-style:italic;}
+  .welcome-line{
+    font-family:'Fraunces',serif;
+    font-size:28px;
+    font-weight:700;
+    color:var(--navy);
+    margin:6px 0 8px;
+  }
+  .welcome-line em{color:var(--gold);font-style:italic;}
+  .profile-line{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--navy);
+    background:var(--card);
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    margin-bottom:18px;
+  }
+  p.sub{font-size:16px;line-height:1.5;color:#4a4a4a;margin-bottom:24px;max-width:520px;}
+
+  input[type="text"]{
+    width:100%;
+    padding:16px 16px 16px 44px;
+    font-size:16px;
+    border:2px solid var(--navy);
+    border-radius:12px;
+    background:var(--card) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="%23555" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>') 14px center / 18px no-repeat;
+    font-family:'Inter',sans-serif;
+    color:var(--navy);
+  }
+  input[type="text"]:focus{outline:3px solid var(--gold);outline-offset:1px;}
+
+  .days{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0;}
+  .day-btn{
+    flex:1 1 auto;
+    min-width:90px;
+    padding:12px 14px;
+    border-radius:999px;
+    border:2px solid var(--navy);
+    background:var(--card);
+    color:var(--navy);
+    font-family:'JetBrains Mono',monospace;
+    font-weight:500;
+    font-size:14px;
+    cursor:pointer;
+    text-align:center;
+    transition:all .15s ease;
+  }
+  .day-btn.active{background:var(--navy);color:var(--cream);}
+  .day-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+  .upnext{
+    background:var(--navy);
+    color:var(--cream);
+    border-radius:14px;
+    padding:20px;
+    margin:22px 0;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .upnext .dot{
+    width:14px;height:14px;border-radius:50%;
+    background:var(--gold);
+    flex-shrink:0;
+  }
+  .upnext .txt{font-size:16px;line-height:1.5;}
+  .upnext b{font-family:'JetBrains Mono',monospace;}
+  .upnext .badge{
+    margin-left:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    border:1px solid var(--gold);
+    color:var(--gold);
+    padding:6px 12px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .upnext.empty{opacity:.7;}
+
+  .attendance-section{
+    background:var(--card);
+    border:2px solid var(--navy);
+    border-radius:12px;
+    margin:18px 0;
+    overflow:hidden;
+  }
+  .attendance-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 16px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .att-title{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:1px;
+    color:var(--navy);
+  }
+  .att-overall{
+    margin-left:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    font-weight:700;
+    color:var(--gold);
+  }
+  .att-arrow{
+    font-size:14px;
+    color:var(--navy);
+    transition:transform .2s ease;
+  }
+  .attendance-section.open .att-arrow{transform:rotate(180deg);}
+  .attendance-body{
+    display:none;
+    padding:0 16px 16px;
+    border-top:1px solid var(--line);
+  }
+  .attendance-section.open .attendance-body{display:block;}
+  .att-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .att-row:last-child{border-bottom:none;}
+  .att-code{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:16px;
+    min-width:60px;
+  }
+  .att-stats{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:#666;
+    flex:1 1 auto;
+  }
+  .att-pct{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    padding:3px 9px;
+    border-radius:999px;
+  }
+  .att-pct.good{background:#e3f2df;color:#2f6b2a;}
+  .att-pct.warn{background:#fdeecb;color:var(--gold);}
+  .att-pct.bad{background:#fbdede;color:#a13636;}
+  .att-btns{display:flex;gap:6px;}
+  .att-btn{
+    border:1.5px solid var(--navy);
+    background:var(--cream);
+    color:var(--navy);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    font-weight:700;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .att-btn.present{border-color:#2f6b2a;color:#2f6b2a;}
+  .att-btn.absent{border-color:#a13636;color:#a13636;}
+  .att-btn:active{transform:scale(0.95);}
+  .att-count-line{display:inline-block;}
+  .att-mini{
+    border:1px solid #ccc;
+    background:var(--cream);
+    color:#666;
+    width:18px;
+    height:18px;
+    line-height:16px;
+    border-radius:50%;
+    font-size:12px;
+    font-family:'JetBrains Mono',monospace;
+    cursor:pointer;
+    padding:0;
+    margin:0 4px;
+  }
+  .att-mini:active{transform:scale(0.9);}
+  .att-reset{
+    text-align:right;
+    margin-top:6px;
+  }
+  .att-sync-status{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:#999;
+    margin-right:10px;
+  }
+  .setup-box{
+    background:#fdf6e3;
+    border:1.5px dashed var(--gold);
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:14px;
+  }
+  .setup-title{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    color:var(--navy);
+    margin-bottom:6px;
+  }
+  .setup-desc{
+    font-size:13px;
+    color:#555;
+    margin:0 0 10px;
+    line-height:1.4;
+  }
+  .setup-status{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:#555;
+    line-height:1.6;
+  }
+  .setup-id{
+    display:inline-block;
+    background:var(--navy);
+    color:var(--cream);
+    font-weight:700;
+    padding:6px 12px;
+    border-radius:6px;
+    margin:4px 0;
+    font-size:15px;
+    letter-spacing:1px;
+  }
+  .setup-note{color:#888;font-size:12px;}
+  .att-reset button{
+    background:none;
+    border:none;
+    color:#999;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    text-decoration:underline;
+    cursor:pointer;
+  }
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:26px 0 14px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .count{font-weight:700;}
+  .view-toggle{display:flex;border:2px solid var(--navy);border-radius:999px;overflow:hidden;}
+  .view-toggle button{
+    border:none;background:var(--card);color:var(--navy);
+    padding:8px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;
+  }
+  .view-toggle button.active{background:var(--navy);color:var(--cream);}
+
+  .day-heading{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--gold);
+    font-weight:700;
+    letter-spacing:2px;
+    margin:26px 0 10px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:8px;
+  }
+
+  .card{
+    background:var(--card);
+    border-left:4px solid var(--navy);
+    border-radius:8px;
+    padding:16px 18px;
+    margin-bottom:12px;
+    box-shadow:0 1px 3px rgba(0,0,0,.05);
+  }
+  .card .code{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:20px;
+    text-decoration:underline;
+    text-decoration-style:dotted;
+    text-decoration-color:var(--gold);
+    text-underline-offset:4px;
+  }
+  .card .fullname{font-size:13px;color:#777;margin-top:2px;}
+  .card .faculty{font-family:'Fraunces',serif;font-size:18px;margin:6px 0;}
+  .card.break-card{
+    border-left:4px dashed var(--gold);
+    background:transparent;
+    box-shadow:none;
+    padding:12px 18px;
+  }
+  .break-label{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--gold);
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:1px;
+  }
+  .card .meta{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:#555;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+  }
+  .card .meta .room{text-decoration:underline;text-decoration-style:dotted;}
+  .card .meta .time{color:var(--gold);font-weight:700;margin-left:auto;}
+  .card .dot-sep{color:var(--gold);}
+
+  .empty-state{
+    text-align:center;
+    padding:50px 20px;
+    color:#777;
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  /* Grid view */
+  .grid-view{display:grid;grid-template-columns:1fr;gap:10px;}
+  @media(min-width:600px){
+    .grid-view{grid-template-columns:repeat(2,1fr);}
+  }
+  .grid-day-col{background:var(--card);border-radius:10px;padding:12px;}
+  .grid-day-col h3{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--gold);
+    font-size:13px;
+    letter-spacing:2px;
+    margin:0 0 10px;
+  }
+  .grid-slot{
+    border-left:3px solid var(--navy);
+    padding:8px 10px;
+    margin-bottom:8px;
+    background:var(--cream);
+    border-radius:6px;
+    font-size:13px;
+  }
+  .grid-slot .gcode{font-weight:700;font-family:'Fraunces',serif;font-size:15px;}
+  .grid-slot .gtime{color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;}
+  .grid-slot.grid-break{
+    border-left:3px dashed var(--gold);
+    background:transparent;
+  }
+
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <img src="data:image/jpeg;base64,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" alt="IBS Bangalore Logo" class="college-logo">
+  <div class="eyebrow">MBA — SEMESTER III · IBS BANGALORE</div>
+  <h1>Find your <em>class</em>,<br>faster.</h1>
+  <div class="welcome-line">Welcome, <em>Sahil Khan</em></div>
+  <div class="profile-line">Enrollment No. 25BSOCBL0666</div>
+  <p class="sub">Search by subject code, section, faculty name, or classroom — every slot across Monday to Saturday, indexed and searchable in one place.</p>
+
+  <input type="text" id="search" placeholder="Search subject, faculty, or room...">
+
+  <div class="days" id="dayFilter"></div>
+
+  <div class="attendance-section">
+    <div class="attendance-header" id="attToggle">
+      <span class="att-title">📋 ATTENDANCE</span>
+      <span class="att-overall" id="attOverall"></span>
+      <span class="att-arrow" id="attArrow">▾</span>
+    </div>
+    <div class="attendance-body" id="attBody"></div>
+  </div>
+
+  <div class="upnext" id="upNext"></div>
+
+  <div class="toolbar">
+    <div class="count" id="count">0 classes shown</div>
+    <div class="view-toggle">
+      <button id="btnList" class="active">LIST</button>
+      <button id="btnGrid">WEEKLY GRID</button>
+    </div>
+  </div>
+
+  <div id="listView"></div>
+  <div id="gridView" class="grid-view hidden"></div>
+
+</div>
+
+<script>
+/* ====================================================================
+   EDIT YOUR TIMETABLE HERE
+   Add one object per class slot. Time in 24hr "HH:MM" format (zero-padded).
+   day: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday"
+   ==================================================================== */
+const schedule = [
+  // ---- Monday ----
+  { code:"BPI", fullName:"Business Process Integration", subCode:"SLIT612", faculty:"Vidhyashree V", room:"FCR-2", day:"Monday", start:"08:00", end:"09:15", type:"Core", stream:"IT & Operations", section:"G" },
+  { code:"BPI", fullName:"Business Process Integration", subCode:"SLIT612", faculty:"Vidhyashree V", room:"FCR-2", day:"Monday", start:"09:25", end:"10:40", type:"Core", stream:"IT & Operations", section:"G" },
+  { code:"BMS", fullName:"Business Modeling and Simulation", subCode:"SLOM605", faculty:"Ramesh Murthy", room:"FCR-2", day:"Monday", start:"10:50", end:"12:05", type:"Elective", stream:"IT & Operations", section:"A" },
+  { code:"BMS", fullName:"Business Modeling and Simulation", subCode:"SLOM605", faculty:"Ramesh Murthy", room:"FCR-2", day:"Monday", start:"12:15", end:"13:30", type:"Elective", stream:"IT & Operations", section:"A" },
+  { code:"AI", fullName:"Artificial Intelligence", subCode:"SHIT601", faculty:"Raghavendra Rao", room:"FCR-2", day:"Monday", start:"14:00", end:"15:15", type:"Elective", stream:"IT & Operations", section:"A" },
+  { code:"AI", fullName:"Artificial Intelligence", subCode:"SHIT601", faculty:"Raghavendra Rao", room:"FCR-2", day:"Monday", start:"15:25", end:"16:40", type:"Elective", stream:"IT & Operations", section:"A" },
+
+  // ---- Tuesday ----
+  { code:"CRM", fullName:"Customer Relationship Management", subCode:"SLMM611", faculty:"Clement Sudhahar", room:"FCR-5", day:"Tuesday", start:"11:50", end:"13:05", type:"Elective", stream:"Marketing", section:"A" },
+  { code:"CRM", fullName:"Customer Relationship Management", subCode:"SLMM611", faculty:"Clement Sudhahar", room:"FCR-5", day:"Tuesday", start:"13:40", end:"14:55", type:"Elective", stream:"Marketing", section:"A" },
+  { code:"CRL", fullName:"Career Readiness Lab", subCode:"FHCR601", faculty:"Geetha Sharma", room:"GCR-8", day:"Tuesday", start:"15:05", end:"16:20", type:"Core", stream:"General Management", section:"G" },
+  { code:"CRL", fullName:"Career Readiness Lab", subCode:"FHCR601", faculty:"Geetha Sharma", room:"GCR-8", day:"Tuesday", start:"16:30", end:"17:45", type:"Core", stream:"General Management", section:"G" },
+
+  // ---- Wednesday ----
+  { code:"ETB", fullName:"Emerging Technologies and Digital Business Models", subCode:"SHED601", faculty:"Sandhya", room:"GCR-8", day:"Wednesday", start:"10:50", end:"12:05", type:"Core", stream:"IT & Operations", section:"G" },
+  { code:"ETB", fullName:"Emerging Technologies and Digital Business Models", subCode:"SHED601", faculty:"Sandhya", room:"GCR-8", day:"Wednesday", start:"12:15", end:"13:30", type:"Core", stream:"IT & Operations", section:"G" },
+
+  // ---- Thursday ----
+  { code:"MA", fullName:"Marketing Analytics", subCode:"SHMM630", faculty:"Roshny Unnikrishnan", room:"FCR-7", day:"Thursday", start:"09:00", end:"10:15", type:"Elective", stream:"Marketing", section:"A" },
+  { code:"MA", fullName:"Marketing Analytics", subCode:"SHMM630", faculty:"Roshny Unnikrishnan", room:"FCR-7", day:"Thursday", start:"10:25", end:"11:40", type:"Elective", stream:"Marketing", section:"A" },
+  { code:"BS", fullName:"Business Strategy", subCode:"SHGM601", faculty:"C B Venkata Krishna Prasad", room:"FCR-6", day:"Thursday", start:"15:05", end:"16:20", type:"Core", stream:"Marketing", section:"G" },
+  { code:"BS", fullName:"Business Strategy", subCode:"SHGM601", faculty:"C B Venkata Krishna Prasad", room:"FCR-6", day:"Thursday", start:"16:30", end:"17:45", type:"Core", stream:"Marketing", section:"G" },
+];
+
+// Lunch breaks — shown in the schedule but not counted/searched as classes
+const breaks = [
+  { day:"Monday", start:"13:30", end:"14:00" },
+  { day:"Wednesday", start:"13:30", end:"14:00" },
+  { day:"Tuesday", start:"13:05", end:"13:40" },
+  { day:"Thursday", start:"13:05", end:"13:40" },
+];
+/* ==================================================================== */
+
+const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+let activeDay = null; // null = all days
+let searchTerm = "";
+let currentView = "list";
+
+const dayFilterEl = document.getElementById('dayFilter');
+const searchEl = document.getElementById('search');
+const listViewEl = document.getElementById('listView');
+const gridViewEl = document.getElementById('gridView');
+const countEl = document.getElementById('count');
+const upNextEl = document.getElementById('upNext');
+const btnList = document.getElementById('btnList');
+const btnGrid = document.getElementById('btnGrid');
+
+function buildDayFilters(){
+  dayFilterEl.innerHTML = "";
+  DAYS.forEach(d=>{
+    const btn = document.createElement('button');
+    btn.className = 'day-btn' + (activeDay===d ? ' active':'');
+    btn.textContent = d;
+    btn.setAttribute('aria-pressed', activeDay===d);
+    btn.onclick = ()=>{
+      activeDay = (activeDay===d) ? null : d;
+      render();
+    };
+    dayFilterEl.appendChild(btn);
+  });
+}
+
+function matchesSearch(item){
+  if(!searchTerm) return true;
+  const t = searchTerm.toLowerCase();
+  return item.code.toLowerCase().includes(t)
+      || (item.fullName && item.fullName.toLowerCase().includes(t))
+      || (item.subCode && item.subCode.toLowerCase().includes(t))
+      || item.faculty.toLowerCase().includes(t)
+      || item.room.toLowerCase().includes(t)
+      || (item.type && item.type.toLowerCase().includes(t))
+      || (item.stream && item.stream.toLowerCase().includes(t))
+      || (item.section && item.section.toLowerCase().includes(t));
+}
+
+function fmtTime(t){
+  const [h,m] = t.split(':').map(Number);
+  const period = h>=12 ? 'PM':'AM';
+  const h12 = ((h+11)%12)+1;
+  return `${h12}:${m.toString().padStart(2,'0')} ${period}`;
+}
+
+function getFiltered(){
+  return schedule.filter(item=>{
+    const dayOk = activeDay ? item.day===activeDay : true;
+    return dayOk && matchesSearch(item);
+  });
+}
+
+function renderList(){
+  const filtered = getFiltered();
+  listViewEl.innerHTML = "";
+  if(filtered.length===0){
+    listViewEl.innerHTML = `<div class="empty-state">No classes match. Try a different search or day.</div>`;
+    return;
+  }
+  const daysToShow = activeDay ? [activeDay] : DAYS;
+  const grouped = {};
+  filtered.forEach(item=>{
+    if(!grouped[item.day]) grouped[item.day]=[];
+    grouped[item.day].push(item);
+  });
+  let anyRendered = false;
+  daysToShow.forEach(day=>{
+    if(!grouped[day]) return;
+    anyRendered = true;
+    const heading = document.createElement('div');
+    heading.className = 'day-heading';
+    heading.textContent = day.toUpperCase();
+    listViewEl.appendChild(heading);
+
+    const dayBreaks = breaks.filter(b=>b.day===day).map(b=>({...b, isBreak:true}));
+    const merged = [...grouped[day], ...dayBreaks].sort((a,b)=>a.start.localeCompare(b.start));
+
+    merged.forEach(item=>{
+      const card = document.createElement('div');
+      if(item.isBreak){
+        card.className = 'card break-card';
+        card.innerHTML = `
+          <div class="break-label">LUNCH BREAK</div>
+          <div class="meta"><span class="time">${fmtTime(item.start)} – ${fmtTime(item.end)}</span></div>`;
+      } else {
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="code">${item.code}</div>
+          <div class="fullname">${item.fullName || ''}</div>
+          <div class="faculty">${item.faculty}</div>
+          <div class="meta">
+            <span class="room">${item.room}</span>
+            <span class="dot-sep">•</span>
+            <span>${item.section ? 'Sec ' + item.section : ''}</span>
+            <span class="dot-sep">•</span>
+            <span>${item.type || ''}${item.stream ? ' · ' + item.stream : ''}</span>
+            <span class="time">${fmtTime(item.start)} – ${fmtTime(item.end)}</span>
+          </div>`;
+      }
+      listViewEl.appendChild(card);
+    });
+  });
+  if(!anyRendered){
+    listViewEl.innerHTML = `<div class="empty-state">No classes match. Try a different search or day.</div>`;
+  }
+}
+
+function renderGrid(){
+  const filtered = getFiltered();
+  gridViewEl.innerHTML = "";
+  const grouped = {};
+  filtered.forEach(item=>{
+    if(!grouped[item.day]) grouped[item.day]=[];
+    grouped[item.day].push(item);
+  });
+  const daysToShow = activeDay ? [activeDay] : DAYS;
+  daysToShow.forEach(day=>{
+    const col = document.createElement('div');
+    col.className = 'grid-day-col';
+    const dayBreaks = breaks.filter(b=>b.day===day).map(b=>({...b, isBreak:true}));
+    const items = [...(grouped[day]||[]), ...dayBreaks].sort((a,b)=>a.start.localeCompare(b.start));
+    col.innerHTML = `<h3>${day.toUpperCase()}</h3>` + (items.length ? items.map(item=>
+      item.isBreak
+      ? `<div class="grid-slot grid-break"><div class="gcode">Lunch Break</div><div class="gtime">${fmtTime(item.start)}–${fmtTime(item.end)}</div></div>`
+      : `<div class="grid-slot">
+        <div class="gcode">${item.code}${item.section ? ' · Sec ' + item.section : ''}</div>
+        <div>${item.faculty}</div>
+        <div class="gtime">${item.room} · ${fmtTime(item.start)}–${fmtTime(item.end)}</div>
+      </div>`
+    ).join('') : `<div style="font-size:12px;color:#999;">No classes</div>`);
+    gridViewEl.appendChild(col);
+  });
+}
+
+function minutesSinceWeekStart(dayName, hh, mm){
+  const idx = DAYS.indexOf(dayName); // Monday=0
+  return idx*1440 + hh*60 + mm;
+}
+
+function renderUpNext(){
+  const now = new Date();
+  const jsDay = now.getDay(); // 0=Sun..6=Sat
+  const dayMap = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const nowDayName = dayMap[jsDay];
+  const nowMinutesInWeek = (jsDay===0 ? 6 : jsDay-1)*1440 + now.getHours()*60 + now.getMinutes();
+
+  let best = null, bestDiff = Infinity;
+  schedule.forEach(item=>{
+    if(!DAYS.includes(item.day)) return;
+    const [h,m] = item.start.split(':').map(Number);
+    let slotMinutes = minutesSinceWeekStart(item.day,h,m);
+    let diff = slotMinutes - nowMinutesInWeek;
+    if(diff < 0) diff += 7*1440; // wrap to next week
+    if(diff < bestDiff){ bestDiff = diff; best = item; }
+  });
+
+  if(!best){
+    upNextEl.className = "upnext empty";
+    upNextEl.innerHTML = `<div class="dot"></div><div class="txt">No upcoming classes found.</div>`;
+    return;
+  }
+  const hrs = Math.floor(bestDiff/60);
+  const mins = bestDiff%60;
+  const inStr = hrs>0 ? `${hrs}h ${mins}m` : `${mins}m`;
+  upNextEl.className = "upnext";
+  upNextEl.innerHTML = `
+    <div class="dot"></div>
+    <div class="txt">Up next: <b>${best.code}</b> with <b>${best.faculty}</b> at ${fmtTime(best.start)} (in ${inStr})</div>
+    <div class="badge">${best.day.toUpperCase()}</div>
+  `;
+}
+
+function render(){
+  buildDayFilters();
+  const filtered = getFiltered();
+  countEl.textContent = `${filtered.length} class${filtered.length!==1?'es':''} shown`;
+  if(currentView==='list'){
+    renderList();
+  } else {
+    renderGrid();
+  }
+  renderUpNext();
+}
+
+searchEl.addEventListener('input', e=>{
+  searchTerm = e.target.value;
+  render();
+});
+
+btnList.addEventListener('click', ()=>{
+  currentView='list';
+  btnList.classList.add('active');
+  btnGrid.classList.remove('active');
+  listViewEl.classList.remove('hidden');
+  gridViewEl.classList.add('hidden');
+  render();
+});
+btnGrid.addEventListener('click', ()=>{
+  currentView='grid';
+  btnGrid.classList.add('active');
+  btnList.classList.remove('active');
+  gridViewEl.classList.remove('hidden');
+  listViewEl.classList.add('hidden');
+  render();
+});
+
+render();
+setInterval(renderUpNext, 60000); // refresh countdown every minute
+
+/* ==================== ATTENDANCE TRACKER (cloud-synced) ==================== */
+const ATT_KEY = 'attendance-data-v1';
+
+// ---- ONE-TIME SETUP ----
+// This starts empty. The first time the page runs, use the "Set up cloud sync"
+// button in the Attendance panel to create a real shared storage bucket.
+// It will show you an ID — send that ID back so it can be hardcoded here
+// permanently. Until then, attendance only saves on this device.
+const BUCKET_ID = ''; // <-- will be filled in once, e.g. 'aB3xY9kP'
+
+const KV_BASE = BUCKET_ID ? `https://kvdb.io/${BUCKET_ID}/sahil-ibs-sem3-attendance` : null;
+const SYNC_INTERVAL_MS = 15000; // poll every 15 seconds for updates from other devices
+
+const DEFAULT_SEED = {
+  AI:  { present:10, absent:0 },
+  BMS: { present:10, absent:0 },
+  BPI: { present:7,  absent:0 },
+  BS:  { present:7,  absent:1 },
+  CRL: { present:10, absent:0 },
+  CRM: { present:10, absent:0 },
+  ETB: { present:10, absent:0 },
+  MA:  { present:7,  absent:1 },
+};
+
+function loadLocalAttendance(){
+  try{
+    const raw = localStorage.getItem(ATT_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+function saveLocalAttendance(data){
+  try{ localStorage.setItem(ATT_KEY, JSON.stringify(data)); }catch(e){}
+}
+
+let attendance = loadLocalAttendance() || DEFAULT_SEED; // local copy, shown immediately while cloud loads
+let syncStatusEl = null;
+
+function setSyncStatus(msg){
+  if(syncStatusEl) syncStatusEl.textContent = msg;
+}
+
+async function createSyncBucket(){
+  const statusBox = document.getElementById('setupStatus');
+  statusBox.textContent = 'Creating shared storage…';
+  try{
+    const res = await fetch('https://kvdb.io/', { method:'POST' });
+    if(res.ok){
+      const newBucketId = (await res.text()).trim();
+      statusBox.innerHTML = `
+        ✅ Created! Your Bucket ID is:<br>
+        <span class="setup-id">${newBucketId}</span><br>
+        <span class="setup-note">Copy this and send it back so it can be saved permanently for everyone.</span>
+      `;
+    } else {
+      statusBox.textContent = 'Could not create storage (server error). Try again in a moment.';
+    }
+  } catch(e){
+    statusBox.textContent = 'Could not create storage — check your internet connection and try again.';
+  }
+}
+
+async function fetchCloudAttendance(){
+  if(!KV_BASE) return null;
+  try{
+    const res = await fetch(KV_BASE, { cache:'no-store' });
+    if(res.ok){
+      const text = await res.text();
+      if(text && text.trim()){
+        return JSON.parse(text);
+      }
+    }
+  }catch(e){ /* offline or blocked — fall back silently */ }
+  return null;
+}
+
+async function pushCloudAttendance(data){
+  if(!KV_BASE){ setSyncStatus('Cloud sync not set up yet'); return; }
+  try{
+    await fetch(KV_BASE, { method:'PUT', body: JSON.stringify(data) });
+    setSyncStatus('Synced ✓');
+  }catch(e){
+    setSyncStatus('Offline — saved on this device only');
+  }
+}
+
+async function syncFromCloud(silent){
+  if(!KV_BASE) return;
+  const cloudData = await fetchCloudAttendance();
+  if(cloudData){
+    attendance = cloudData;
+    saveLocalAttendance(attendance);
+    renderAttendance();
+    if(!silent) setSyncStatus('Synced ✓');
+  } else if(!silent){
+    setSyncStatus('Offline — showing last saved data');
+  }
+}
+
+function getUniqueSubjects(){
+  const seen = {};
+  schedule.forEach(item=>{
+    if(!seen[item.code]) seen[item.code] = item.fullName || item.code;
+  });
+  return Object.keys(seen).map(code=>({ code, fullName: seen[code] }));
+}
+
+function pctClass(pct){
+  if(pct >= 85) return 'good';
+  if(pct >= 75) return 'warn';
+  return 'bad';
+}
+
+function renderAttendance(){
+  const subjects = getUniqueSubjects();
+  const attBody = document.getElementById('attBody');
+  const attOverall = document.getElementById('attOverall');
+
+  let totalP = 0, totalA = 0;
+  attBody.innerHTML = "";
+
+  if(!BUCKET_ID){
+    const setupBox = document.createElement('div');
+    setupBox.className = 'setup-box';
+    setupBox.innerHTML = `
+      <div class="setup-title">⚙️ One-time setup needed for cross-device sync</div>
+      <p class="setup-desc">Attendance below is saved on this device only. Tap once (needs internet) to create shared storage:</p>
+      <button id="setupBtn" class="att-btn present" style="margin-bottom:6px;">Set up cloud sync</button>
+      <div id="setupStatus" class="setup-status"></div>
+    `;
+    attBody.appendChild(setupBox);
+  }
+
+  subjects.forEach(sub=>{
+    const rec = attendance[sub.code] || { present:0, absent:0 };
+    const total = rec.present + rec.absent;
+    const pct = total > 0 ? Math.round((rec.present/total)*100) : 100;
+    totalP += rec.present;
+    totalA += rec.absent;
+
+    const row = document.createElement('div');
+    row.className = 'att-row';
+    row.innerHTML = `
+      <div class="att-code">${sub.code}</div>
+      <div class="att-stats">${sub.fullName}<br>
+        <span class="att-count-line">
+          ${rec.present} present
+          <button class="att-mini" data-code="${sub.code}" data-action="present" data-dir="-1" title="Undo one present">−</button>
+          · ${rec.absent} absent
+          <button class="att-mini" data-code="${sub.code}" data-action="absent" data-dir="-1" title="Undo one absent">−</button>
+          ${total>0 ? ` · ${total} total` : ''}
+        </span>
+      </div>
+      <div class="att-pct ${pctClass(pct)}">${total>0 ? pct+'%' : '—'}</div>
+      <div class="att-btns">
+        <button class="att-btn present" data-code="${sub.code}" data-action="present" data-dir="1">+ Present</button>
+        <button class="att-btn absent" data-code="${sub.code}" data-action="absent" data-dir="1">+ Absent</button>
+      </div>
+    `;
+    attBody.appendChild(row);
+  });
+
+  const resetWrap = document.createElement('div');
+  resetWrap.className = 'att-reset';
+  resetWrap.innerHTML = `<span id="attSyncStatus" class="att-sync-status"></span> <button id="attResetAll">Reset all attendance</button>`;
+  attBody.appendChild(resetWrap);
+  syncStatusEl = document.getElementById('attSyncStatus');
+
+  if(!BUCKET_ID){
+    setSyncStatus('');
+    document.getElementById('setupBtn').addEventListener('click', createSyncBucket);
+  }
+
+  const overallTotal = totalP + totalA;
+  const overallPct = overallTotal > 0 ? Math.round((totalP/overallTotal)*100) : null;
+  attOverall.textContent = overallPct !== null ? `${overallPct}% overall` : 'No data yet';
+
+  attBody.querySelectorAll('.att-btn, .att-mini').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const code = btn.dataset.code;
+      const action = btn.dataset.action;
+      const dir = parseInt(btn.dataset.dir, 10);
+      if(!attendance[code]) attendance[code] = { present:0, absent:0 };
+      attendance[code][action] = Math.max(0, attendance[code][action] + dir);
+      saveLocalAttendance(attendance);
+      renderAttendance();
+      setSyncStatus('Syncing…');
+      await pushCloudAttendance(attendance);
+    });
+  });
+
+  document.getElementById('attResetAll').addEventListener('click', async ()=>{
+    if(confirm('Reset all attendance records for everyone?')){
+      attendance = {};
+      saveLocalAttendance(attendance);
+      renderAttendance();
+      setSyncStatus('Syncing…');
+      await pushCloudAttendance(attendance);
+    }
+  });
+}
+
+const attSection = document.querySelector('.attendance-section');
+document.getElementById('attToggle').addEventListener('click', ()=>{
+  attSection.classList.toggle('open');
+});
+
+renderAttendance();
+syncFromCloud(false);
+setInterval(()=>syncFromCloud(true), SYNC_INTERVAL_MS);
+
+</script>
+</body>
+</html>
